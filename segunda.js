@@ -65,6 +65,8 @@ let cartas = [
             "vermelho": 1,
             "preto": 1
         },
+
+        // custo: [2, 0, 0, 0, 1, 1]
         "modificadores": ["Voar", "Atropelar"],
         "texto": "",
         "tipo": ["Criatura", "Goblin", "Pirata"]
@@ -72,4 +74,24 @@ let cartas = [
 
 ]
 
-//Callbacks e closures
+let criaturas = cartas.filter(carta => {
+    return carta.tipo.includes("Criatura")
+})
+// console.log(criaturas)
+
+let bolinhosDeCarta = [10, 10, 10]
+
+let totalDeCartas = bolinhosDeCarta.reduce((acumulador, valorAtual) => { 
+    return acumulador = acumulador + valorAtual
+})
+
+console.log(totalDeCartas)
+
+/**
+ * if
+ * function
+ * for-each
+ * map
+ * filter
+ * reduce
+ */
