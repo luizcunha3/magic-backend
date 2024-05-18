@@ -77,15 +77,12 @@ let cartas = [
 let criaturas = cartas.filter(carta => {
     return carta.tipo.includes("Criatura")
 })
-// console.log(criaturas)
 
 let bolinhosDeCarta = [10, 10, 10]
 
 let totalDeCartas = bolinhosDeCarta.reduce((acumulador, valorAtual) => { 
     return acumulador = acumulador + valorAtual
 })
-
-console.log(totalDeCartas)
 
 /**
  * if
