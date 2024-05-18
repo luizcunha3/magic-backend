@@ -15,4 +15,14 @@ function addCardFromScryfall(id) {
         })
 }
 
-module.exports = {addCardFromScryfall}
+function addCardToDb(json) {
+    return insertCard(json)
+}
+
+function queryCardFromScryfall(id) {
+    let baseUrl = "https://api.scryfall.com/cards/" + id
+    return fetch(baseUrl)
+        .then(data => data.json())
+}
+
+module.exports = {addCardFromScryfall, queryCardFromScryfall, addCardToDb}

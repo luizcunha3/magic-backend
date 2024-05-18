@@ -4,7 +4,7 @@ async function insert(json) {
     let message = 'Error in inserting card';
     let colorIdArray = json.color_identity
     let color_identity = colorIdArray.length > 0 ? colorIdArray.reduce((acc, val) => acc += val) : ""
-    let oracleText = json.oracleText.replace("\"", "\`")
+
     const sql = `INSERT INTO carta (
                                     scryfall_id,
                                     oracle_id,

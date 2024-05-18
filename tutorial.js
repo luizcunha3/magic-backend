@@ -15,15 +15,15 @@ let cartas = [12, 32, 51, 66, 100]
 
 //For padrão (pouco usado)
 for(let i = 0; i < cartas.length; i++) {
-    console.log(cartas[i])
+
 }
 
 //For of
 for(let carta of cartas) {
-    console.log(carta)
+
 }
 
 //Map (mais usado de todos)
 cartas.map(carta => {
-    console.log(carta)
+
 })

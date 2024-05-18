@@ -33,10 +33,21 @@ app.get('/busca/nome/:name', (req, res) => {
 app.get('/busca/id/:id', (req, res) => {
     queryCard(req.params.id)
     .then(result => {
+        console.log("Voltei do DB")
         if(result.length == 0) {
-
+            console.log("não achei no DB")
+            return cardHandler.queryCardFromScryfall(req.params.id)
+        } else {
+            console.log("achei no DB")
+            res.send(result).status(200)
         }
-        res.sendStatus(200)
+        
+    })
+    .then(result => {
+        console.log("Voltei do Scryfall")
+        cardHandler.addCardToDb(result)
+        console.log("salvei o card novo no DB")
+        res.send(result).status(200)
     })
 })
 
