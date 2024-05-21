@@ -1,72 +1,81 @@
 const express = require('express')
-const insertCard = require("./database/crud/insertCard");
 const queryCard = require("./database/crud/queryCard");
 const cardHandler = require("./controller/carta")
+const userHandler = require("./controller/user")
+const locationHandler = require("./controller/location")
 const app = express()
 const port = 3000
 
-function createCardSearchObject(cardData) {
-    return {
-        "id": cardData.id,
-        "name": cardData.name
-    }
-}
-function buildSearchResponse(json) {
-    if(json.total_cards == 1) {
-        return createCardSearchObject(json.data[0])
-    } else {
-        return json.data.map(card => createCardSearchObject(card))
-    }
-}
+app.get('/busca/cards', async (req, res) => {
+    let cards = await cardHandler.queryAllCards()
+    res.send(cards).status(200)
+})
 
-app.get('/busca/nome/:name', (req, res) => {
-    let baseUrl = "https://api.scryfall.com/cards/search?q="
+app.get('/busca/nome/:name', async (req, res) => {
     let cardName = req.params.name
-    let url = baseUrl + cardName
-    fetch(url)
-        .then(data => data.json())
-        .then(json => {       
-            res.send(buildSearchResponse(json));
-        })
+    let cards = await cardHandler.queryCardByName(cardName)
+    res.send(cards).status(200)
 })
 
-app.get('/busca/id/:id', (req, res) => {
-    queryCard(req.params.id)
-    .then(result => {
-        console.log("Voltei do DB")
-        if(result.length == 0) {
-            console.log("não achei no DB")
-            return cardHandler.queryCardFromScryfall(req.params.id)
-        } else {
-            console.log("achei no DB")
-            res.send(result).status(200)
-        }
-        
-    })
-    .then(result => {
-        console.log("Voltei do Scryfall")
-        cardHandler.addCardToDb(result)
-        console.log("salvei o card novo no DB")
-        res.send(result).status(200)
-    })
+app.get('/busca/user/:id', async (req, res) => {
+    let userId = req.params.id
+    let userCards = await userHandler.getUserCards(userId)
+    res.send(userCards).status(200)
 })
 
-app.get('/add/:id', (req, res) => {
-    cardHandler.addCardFromScryfall(req.params.id)
-    .then(err => {
-        if(err) {
-            res.send(err)
-        } else { 
-            res.send(200)
-        }
-    })
+app.get('/busca/id/:id', async (req, res) => {
+    let cardId = req.params.id
+    let card = await cardHandler.queryCardFromDb(cardId)
+    if (card.length == 0) {
+        let scryfallCard = await cardHandler.queryCardFromScryfall(cardId)
+        cardHandler.addCardToDb(scryfallCard)
+        let card = await queryCard.queryCardById(cardId)
+        res.send(card).status
+    } else {
+        res.send(card).status(200)
+    }
 })
+
+app.get('/busca/local/:userId', async (req, res) => {
+    let userId = req.params.userId
+    let locations = await locationHandler.getUserLocations(userId)
+    res.send(locations).status(200)
+})
+
+app.use(express.raw({ type: '*/*', limit: '10mb' }));
+
+app.post("/remove/card", async (req, res) => {
+    let reqBody = JSON.parse(req.body.toString('utf-8'))
+    let changedRows = await userHandler.removeUserCard(reqBody)
+    if(changedRows >= 1) {
+        res.send(201)
+    } else {
+        res.send(500)
+    }
+})
+
+app.post("/add/card", async (req, res) => {
+    let reqBody = JSON.parse(req.body.toString('utf-8'))
+    let changedRows = await userHandler.addUserCard(reqBody)
+    if(changedRows != 1) {
+        res.send(500)
+    } else {
+        res.send(201)
+    }
+})
+
+app.post("/add/location", async (req, res) => {
+    let reqBody = JSON.parse(req.body.toString('utf-8'))
+    let changedRows = await locationHandler.addUserLocation(reqBody.userId, reqBody.locationName)
+    if(changedRows != 1) {
+        res.send(500)
+    } else {
+        res.send(201)
+    }
+})
+
+
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })
-
-
-/**
- * /cards/{idCarta} -> ...../cards/1234
- */
